@@ -1,6 +1,5 @@
 import React from 'react';
 import { useBills } from '../hooks/useBills';
-import { usePayments } from '../hooks/usePayments';
 import { format, startOfMonth, endOfMonth, subMonths, isSameMonth } from 'date-fns';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -10,18 +9,17 @@ import { TrendingUp, TrendingDown, DollarSign, Calendar, Zap, Droplets, Flame, W
 
 const AnalyticsPage: React.FC = () => {
   const { bills } = useBills();
-  const { payments } = usePayments();
 
   // Calculate monthly spending trends
   const monthlySpending = Array.from({ length: 12 }, (_, i) => {
     const month = subMonths(new Date(), i);
-    const monthPayments = payments.filter(payment => 
-      isSameMonth(new Date(payment.payment_date), month)
+    const monthBills = bills.filter(bill => 
+      bill.status === 'paid' && isSameMonth(new Date(bill.updated_at), month)
     );
     return {
       month: format(month, 'MMM yyyy'),
-      amount: monthPayments.reduce((sum, payment) => sum + payment.amount, 0),
-      count: monthPayments.length,
+      amount: monthBills.reduce((sum, bill) => sum + bill.amount, 0),
+      count: monthBills.length,
     };
   }).reverse();
 
@@ -42,34 +40,23 @@ const AnalyticsPage: React.FC = () => {
     color: getUtilityColor(type),
   }));
 
-  // Calculate payment method breakdown
-  const paymentMethodBreakdown = payments.reduce((acc: Record<string, number>, payment) => {
-    acc[payment.payment_method] = (acc[payment.payment_method] || 0) + payment.amount;
-    return acc;
-  }, {});
-
-  const paymentMethodData = Object.entries(paymentMethodBreakdown).map(([method, amount]) => ({
-    method: method.charAt(0).toUpperCase() + method.slice(1),
-    amount,
-  }));
-
   // Calculate key metrics
   const currentMonth = new Date();
   const lastMonth = subMonths(currentMonth, 1);
   
-  const currentMonthPayments = payments.filter(payment => 
-    isSameMonth(new Date(payment.payment_date), currentMonth)
+  const currentMonthPaid = bills.filter(bill => 
+    bill.status === 'paid' && isSameMonth(new Date(bill.updated_at), currentMonth)
   );
-  const lastMonthPayments = payments.filter(payment => 
-    isSameMonth(new Date(payment.payment_date), lastMonth)
+  const lastMonthPaid = bills.filter(bill => 
+    bill.status === 'paid' && isSameMonth(new Date(bill.updated_at), lastMonth)
   );
 
-  const currentMonthTotal = currentMonthPayments.reduce((sum, p) => sum + p.amount, 0);
-  const lastMonthTotal = lastMonthPayments.reduce((sum, p) => sum + p.amount, 0);
+  const currentMonthTotal = currentMonthPaid.reduce((sum, bill) => sum + bill.amount, 0);
+  const lastMonthTotal = lastMonthPaid.reduce((sum, bill) => sum + bill.amount, 0);
   const monthlyChange = lastMonthTotal > 0 ? ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100 : 0;
 
   const averageMonthlySpending = monthlySpending.reduce((sum, month) => sum + month.amount, 0) / monthlySpending.length;
-  const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+  const totalPaid = bills.filter(bill => bill.status === 'paid').reduce((sum, bill) => sum + bill.amount, 0);
   const totalPending = bills.filter(bill => bill.status === 'pending').reduce((sum, bill) => sum + bill.amount, 0);
 
   return (
@@ -122,7 +109,7 @@ const AnalyticsPage: React.FC = () => {
             <div>
               <p className="text-gray-600 text-sm">Total Paid</p>
               <p className="text-2xl font-bold text-gray-900">${totalPaid.toFixed(2)}</p>
-              <p className="text-sm text-gray-500 mt-2">{payments.length} payments</p>
+              <p className="text-sm text-gray-500 mt-2">{bills.filter(b => b.status === 'paid').length} bills paid</p>
             </div>
             <div className="bg-purple-100 p-3 rounded-lg">
               <TrendingUp className="text-purple-600" size={24} />
@@ -186,25 +173,9 @@ const AnalyticsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Payment Methods */}
+        {/* Bills Paid by Month */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Methods</h3>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={paymentMethodData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="method" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']} />
-                <Bar dataKey="amount" fill="#10B981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Bill Count by Month */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Bills Paid by Month</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Bills Paid Count by Month</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlySpending}>
@@ -235,7 +206,7 @@ const AnalyticsPage: React.FC = () => {
                 <p className="text-2xl font-bold text-gray-900">${data.amount.toFixed(2)}</p>
                 <p className="text-sm text-gray-600">{data.count} bills</p>
                 <p className="text-sm text-gray-600">
-                  Avg: ${(data.amount / data.count).toFixed(2)} per bill
+                  Avg: ${data.count > 0 ? (data.amount / data.count).toFixed(2) : '0.00'} per bill
                 </p>
               </div>
             ))}

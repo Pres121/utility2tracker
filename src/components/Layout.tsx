@@ -17,7 +17,6 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard', on
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'bills', label: 'Bills', icon: '📄' },
-    { id: 'payments', label: 'Payments', icon: '💳' },
     { id: 'analytics', label: 'Analytics', icon: '📈' },
   ];
 

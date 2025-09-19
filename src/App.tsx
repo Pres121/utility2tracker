@@ -4,7 +4,6 @@ import Auth from './components/Auth';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import BillsPage from './components/BillsPage';
-import PaymentsPage from './components/PaymentsPage';
 import AnalyticsPage from './components/AnalyticsPage';
 
 const AppContent: React.FC = () => {
@@ -29,8 +28,6 @@ const AppContent: React.FC = () => {
         return <Dashboard />;
       case 'bills':
         return <BillsPage />;
-      case 'payments':
-        return <PaymentsPage />;
       case 'analytics':
         return <AnalyticsPage />;
       default:
