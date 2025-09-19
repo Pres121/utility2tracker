@@ -39,6 +39,11 @@ const Auth: React.FC = () => {
                 <p>The setup process will guide you through creating a Supabase project and configuring your database.</p>
               </div>
             </div>
+
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm mt-4">
+              <p className="font-medium mb-1">🔒 Security Notice</p>
+              <p>For your protection, you will be automatically logged out when you close the browser or after 30 minutes of inactivity.</p>
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Bell, Settings, LogOut, Menu, X } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,6 +20,18 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard', on
     { id: 'analytics', label: 'Analytics', icon: '📈' },
   ];
 
+  // Security warning when user tries to close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const message = 'You will be automatically logged out for security. Are you sure you want to leave?';
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
   const handleSignOut = async () => {
     await signOut();
   };
