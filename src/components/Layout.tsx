@@ -20,20 +20,14 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard', on
     { id: 'analytics', label: 'Analytics', icon: '📈' },
   ];
 
-  // Security warning when user tries to close/refresh
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      const message = 'You will be automatically logged out for security. Are you sure you want to leave?';
-      e.preventDefault();
-      e.returnValue = message;
-      return message;
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force reload if sign out fails
+      window.location.reload();
+    }
   };
 
   return (

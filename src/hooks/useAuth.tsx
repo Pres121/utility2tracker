@@ -90,79 +90,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             if (insertError) {
               console.error('Error creating profile on sign in:', insertError);
-            }
-          }
-        } catch (error) {
-          console.error('Error checking/creating profile on sign in:', error);
-        }
-      }
-    });
-
-    // Auto logout on page unload for security
-    const handleBeforeUnload = async () => {
-      if (session) {
-        await supabase.auth.signOut();
-      }
-    };
-
-    const handleVisibilityChange = async () => {
-      if (document.hidden && session) {
-        // Optional: Also logout when tab becomes hidden (more aggressive security)
-        // Uncomment the next line if you want to logout when user switches tabs
-        // await supabase.auth.signOut();
-      }
-    };
-
-    // Add event listeners for security
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('unload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Cleanup function
-    const cleanup = () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('unload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
       subscription.unsubscribe();
     };
-
-    return cleanup;
   }, []);
 
-  // Additional security: Auto logout after inactivity
-  useEffect(() => {
-    if (!session) return;
-
-    let inactivityTimer: NodeJS.Timeout;
-    const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-
-    const resetInactivityTimer = () => {
-      clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(async () => {
-        console.log('Auto-logging out due to inactivity');
-        await signOut();
-      }, INACTIVITY_TIMEOUT);
-    };
-
-    // Events that indicate user activity
-    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
-    // Add event listeners for user activity
-    activityEvents.forEach(event => {
-      document.addEventListener(event, resetInactivityTimer, true);
-    });
-
-    // Start the timer
-    resetInactivityTimer();
-
-    // Cleanup
-    return () => {
-      clearTimeout(inactivityTimer);
-      activityEvents.forEach(event => {
-        document.removeEventListener(event, resetInactivityTimer, true);
-      });
-    };
-  }, [session]);
   const signUp = async (email: string, password: string, fullName?: string) => {
     if (!isSupabaseConfigured) {
       return { error: { message: 'Supabase is not configured. Please set up your Supabase connection.' } };
@@ -196,7 +128,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isSupabaseConfigured) {
       return;
     }
-    console.log('Signing out user for security');
     await supabase.auth.signOut();
   };
 

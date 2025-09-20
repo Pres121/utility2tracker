@@ -61,10 +61,12 @@ const Auth: React.FC = () => {
         if (error) setError(error.message);
       } else {
         const { error } = await signUp(formData.email, formData.password, formData.fullName);
-        if (error) {
+              // Success - switch to login mode
           if (error.message.includes('User already registered')) {
             setError('This email is already registered. Please try signing in.');
-          } else {
+              // Clear any previous errors and show success
+              setError('');
+              // You could add a success state here if needed
             setError(error.message);
           }
         } else {
