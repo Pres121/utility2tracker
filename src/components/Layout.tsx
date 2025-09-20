@@ -80,7 +80,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard', on
               <div className="flex items-center space-x-3">
                 <div className="hidden sm:flex flex-col text-right">
                   <span className="text-sm font-medium text-gray-900">
-                    {user?.user_metadata?.full_name || user?.email}
+                    {user?.user_metadata?.full_name || 'User'}
                   </span>
                   <span className="text-xs text-gray-500">User</span>
                 </div>

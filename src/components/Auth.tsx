@@ -68,7 +68,10 @@ const Auth: React.FC = () => {
             setError(error.message);
           }
         } else {
-          setError('Check your email for the confirmation link!');
+          // Don't show success message as error
+          setIsLogin(true);
+          setFormData({ email: formData.email, password: '', fullName: '' });
+          setError('Account created successfully! You can now sign in.');
         }
       }
     } catch (err) {

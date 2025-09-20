@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .insert([
               {
                 id: session.user.id,
-                email: session.user.email,
+                email: session.user.email || '',
                 full_name: session.user.user_metadata?.full_name || null,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .insert([
                 {
                   id: session.user.id,
-                  email: session.user.email,
+                  email: session.user.email || '',
                   full_name: session.user.user_metadata?.full_name || null,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString(),
