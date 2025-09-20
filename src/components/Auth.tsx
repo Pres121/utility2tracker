@@ -67,8 +67,7 @@ const Auth: React.FC = () => {
           } else {
             setError(error.message);
           }
-        }
-        else {
+        } else {
           setError('Check your email for the confirmation link!');
         }
       }

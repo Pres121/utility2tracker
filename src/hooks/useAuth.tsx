@@ -50,7 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               {
                 id: session.user.id,
                 email: session.user.email,
+                full_name: session.user.user_metadata?.full_name || null,
                 created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
               },
             ]);
           
@@ -59,6 +61,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (error) {
           console.error('Error creating profile:', error);
+        }
+      }
+
+      // Also ensure profile exists on sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        try {
+          // Check if profile exists
+          const { data: existingProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', session.user.id)
+            .single();
+
+          // If profile doesn't exist, create it
+          if (fetchError && fetchError.code === 'PGRST116') {
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert([
+                {
+                  id: session.user.id,
+                  email: session.user.email,
+                  full_name: session.user.user_metadata?.full_name || null,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                },
+              ]);
+            
+            if (insertError) {
+              console.error('Error creating profile on sign in:', insertError);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking/creating profile on sign in:', error);
         }
       }
     });
@@ -128,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     };
   }, [session]);
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, fullName?: string) => {
     if (!isSupabaseConfigured) {
       return { error: { message: 'Supabase is not configured. Please set up your Supabase connection.' } };
     }
@@ -136,6 +171,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
     });
     return { error };
   };

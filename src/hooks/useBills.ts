@@ -34,6 +34,41 @@ export const useBills = () => {
   const addBill = async (billData: Omit<BillInsert, 'user_id'>) => {
     if (!user) return;
 
+    // Ensure user profile exists before adding bill
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        const { error: createProfileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.id,
+              email: user.email || '',
+              full_name: user.user_metadata?.full_name || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ]);
+
+        if (createProfileError) {
+          console.error('Error creating profile:', createProfileError);
+          return { data: null, error: createProfileError };
+        }
+      } else if (profileError) {
+        console.error('Error checking profile:', profileError);
+        return { data: null, error: profileError };
+      }
+    } catch (error) {
+      console.error('Error ensuring profile exists:', error);
+      return { data: null, error };
+    }
+
     try {
       const { data, error } = await supabase
         .from('bills')
