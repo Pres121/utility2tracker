@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, CheckCircle, AlertTriangle, Clock, Search, Filter }
 
 const BillsPage: React.FC = () => {
   const { bills, loading, addBill, updateBill, deleteBill } = useBills();
+  const { isConfigured } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingBill, setEditingBill] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,6 +82,17 @@ const BillsPage: React.FC = () => {
     };
     return icons[type as keyof typeof icons] || '⚡';
   };
+
+  if (!isConfigured) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-500">Supabase not configured</p>
+          <p className="text-sm text-gray-400">Please connect to Supabase to manage your bills</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

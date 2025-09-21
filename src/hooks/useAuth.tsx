@@ -22,6 +22,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
+      setUser(null);
+      setSession(null);
       setLoading(false);
       return;
     }

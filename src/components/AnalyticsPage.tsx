@@ -9,6 +9,18 @@ import { TrendingUp, TrendingDown, DollarSign, Calendar, Zap, Droplets, Flame, W
 
 const AnalyticsPage: React.FC = () => {
   const { bills } = useBills();
+  const { isConfigured } = useAuth();
+
+  if (!isConfigured) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-500">Supabase not configured</p>
+          <p className="text-sm text-gray-400">Please connect to Supabase to view analytics</p>
+        </div>
+      </div>
+    );
+  }
 
   // Calculate monthly spending trends
   const monthlySpending = Array.from({ length: 12 }, (_, i) => {

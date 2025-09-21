@@ -9,10 +9,13 @@ type BillUpdate = Database['public']['Tables']['bills']['Update'];
 export const useBills = () => {
   const { user } = useAuth();
   const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchBills = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
     try {
