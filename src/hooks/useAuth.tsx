@@ -90,8 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             if (insertError) {
               console.error('Error creating profile on sign in:', insertError);
-            } catch (error) {
-              console.error('Error handling profile on sign in:', error);
             }
           }
         }
