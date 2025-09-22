@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useBills } from '../hooks/useBills';
 import { format, startOfMonth, endOfMonth, subMonths, isSameMonth } from 'date-fns';
 import { 
