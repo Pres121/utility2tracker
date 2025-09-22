@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useBills } from '../hooks/useBills';
+import { useAuth } from '../hooks/useAuth';
 import BillForm from './BillForm';
 import { format, isBefore } from 'date-fns';
 import { Plus, Edit, Trash2, CheckCircle, AlertTriangle, Clock, Search, Filter } from 'lucide-react';
