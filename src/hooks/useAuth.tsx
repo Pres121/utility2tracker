@@ -33,6 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+    }).catch(async (error) => {
+      console.error('Error getting session:', error);
+      // Clear corrupted session data
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setLoading(false);
     });
 
     // Listen for auth changes
